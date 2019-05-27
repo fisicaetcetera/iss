@@ -4,35 +4,60 @@
   
    <!-- Make sure you put this AFTER Leaflet's CSS -->
  <script src="leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
-  <style> #issMap { height: 600px; } </style>
+  <style> #issMap { height: 620px; } </style>
 
 </head>
 
 <body>
   <div id="issMap"></div>
   <script>
-    const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors';
     
+    //Making a map and tiles
+    let lat=-5.86;
+    let long = -35.2;
+    let latprev;
+    let longprev;
+    const mymap = L.map('issMap').setView([-5.8596383, -35.20597939999999], 3);
+    const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors';
     const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     const tiles = L.tileLayer(tileUrl,{attribution});
-    const mymap = L.map('issMap').setView([-5.8596383, -35.20597939999999], 1);
     tiles.addTo(mymap);
+    
+// Making a marker with a custom icon 
+    let casalat = -5.8596383;
+    let casalong = -35.20597939999999;
+    const issIcon = L.icon({
+    iconUrl: 'iss.png',
+    iconSize: [200,128],
+    iconAnchor: [100,64]  
+});
+    const marker = L.marker([casalat,casalong], {icon: issIcon}).addTo(mymap);
+    
+    
+    
     const api_url = 'https://api.wheretheiss.at/v1/satellites/25544';
+    var myVar = setInterval(getISS, 5000);
     async function getISS(){
       const response = await fetch(api_url);
       const data = await response.json();
-      let lat = data.latitude;
-      let long = data.longitude;
-      let casalat = -5.8596383;
-      let casalong = -35.20597939999999;
-      L.marker([lat, long]).addTo(mymap);
-      console.log(lat, long);
-      console.log(data.solar_lat);
-      L.marker([casalat, casalong]).addTo(mymap);
-      L.marker([40.059970, -83.113900 ]).addTo(mymap);
+      latprev = lat;
+      longprev =long;
+      lat = data.latitude;
+      long = data.longitude;
       
+      //L.marker([lat, long]).addTo(mymap);
+      marker.setLatLng([ lat, long]);
+      //console.log(lat, long);
+      //console.log(data.solar_lat);
+      L.marker([casalat, casalong]).addTo(mymap);
+      L.circle([latprev, longprev], {radius: 3}).addTo(map);
+
+      //var popup = L.popup()
+      //  .setLatLng([,casalong])
+      //  .setContent("casa")
+      //  .openOn(mymap);
     };
-  getISS();
+  //getISS();
   </script>
 
 
